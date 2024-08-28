@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
-	"go.qingyu31.com/llmbridge/impl/openai"
 	"go.qingyu31.com/llmbridge/llm"
+	"go.qingyu31.com/llmbridge/providers/openai"
 )
 
 func main() {

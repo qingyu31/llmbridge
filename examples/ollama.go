@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
-	"go.qingyu31.com/llmbridge/impl/ollama"
 	"go.qingyu31.com/llmbridge/llm"
+	"go.qingyu31.com/llmbridge/providers/ollama"
 	"net/http"
 	"net/url"
 	"time"

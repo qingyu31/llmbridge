@@ -19,26 +19,27 @@ Here's a basic example of how to use LLMBridge:
 package main
 
 import (
-    "context"
-    "go.qingyu31.com/llmbridge/impl/openai"
-    "go.qingyu31.com/llmbridge/llm"
+	"context"
+	"go.qingyu31.com/llmbridge/llm"
+	"go.qingyu31.com/llmbridge/providers/openai"
 )
 
 func main() {
-    client, err := llm.NewClient(openai.NewGPTClient, openai.WithGPTEndpoint("https://api.openai.com"), openai.WithAPIKey("YOUR_API_KEY"))
-    if err != nil {
-        panic(err)
-    }
-    ctx := context.Background()
-    req := new(llm.CompleteRequest)
-    req.Model = "gpt-4o-mini"
-    req.Prompt = "hello"
-    result, err := client.Complete(ctx, req)
-    if err != nil {
-        panic(err)
-    }
-    println(result.Response.Text)
+	client, err := llm.NewClient(openai.NewGPTClient, openai.WithGPTEndpoint("https://api.openai.com"), openai.WithAPIKey("YOUR_API_KEY"))
+	if err != nil {
+		panic(err)
+	}
+	ctx := context.Background()
+	req := new(llm.CompleteRequest)
+	req.Model = "gpt-4o"
+	req.Prompt = "hello"
+	result, err := client.Complete(ctx, req)
+	if err != nil {
+		panic(err)
+	}
+	println(result.Response.Text)
 }
+
 ```
 Switching to a different LLM provider is as simple as changing the `NewClient` function argument. For example, to use the llama3.1 model with ollama:
 ```go

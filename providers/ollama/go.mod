@@ -1,4 +1,4 @@
-module go.qingyu31.com/llmbridge/impl/ollama
+module go.qingyu31.com/llmbridge/providers/ollama
 
 go 1.22.5
 

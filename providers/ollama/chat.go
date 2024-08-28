@@ -26,7 +26,7 @@ func (c Client) ChatStream(ctx context.Context, req *llm.ChatRequest, opts ...ll
 	cr := transformChatRequest(req)
 	cr.Stream = toPtr(true)
 	result := new(llm.StreamResult[llm.ChatResponse])
-	iter := new(iterator[llm.ChatResponse])
+	iter := llm.NewItemIterator[llm.ChatResponse]()
 	result.Iterator = iter
 	er := c.client.Chat(ctx, cr, func(response api.ChatResponse) error {
 		if response.Done {
