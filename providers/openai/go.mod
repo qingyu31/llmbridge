@@ -1,4 +1,4 @@
-module go.qingyu31.com/llmbridge/impl/openai
+module go.qingyu31.com/llmbridge/providers/openai
 
 go 1.18
 
