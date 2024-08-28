@@ -226,9 +226,7 @@ func (c GPTClient) transformChatMessage(rm *azopenai.ChatResponseMessage) *llm.M
 		lm.Role = llm.RoleAssistant
 	}
 	if rm.Content != nil {
-		lc := new(llm.MessageContent)
-		lc.ContentType = llm.ContentTypeText
-		lc.Content = []byte(*rm.Content)
+		lm.Contents = append(lm.Contents, llm.NewTextContent(*rm.Content))
 	}
 	if rm.FunctionCall != nil {
 		lfc := new(llm.FunctionCall)

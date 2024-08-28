@@ -1,6 +1,8 @@
 package llm
 
 type role string
+
+// ContentType represents the type of content in message.
 type ContentType string
 
 const (
@@ -46,7 +48,31 @@ type Message struct {
 	FunctionCalls []*FunctionCall
 }
 
+// MessageContent represents the content in message.
 type MessageContent struct {
-	ContentType
-	Content []byte
+	ContentType ContentType
+	Content     []byte
+}
+
+// NewSystemMessage creates a new system message with the given text.
+func NewSystemMessage(text string) *Message {
+	return &Message{
+		Role:     RoleSystem,
+		Contents: []*MessageContent{{ContentType: ContentTypeText, Content: []byte(text)}},
+	}
+}
+
+// NewUserMessage creates a new user message with the given contents.
+func NewUserMessage(contents ...*MessageContent) *Message {
+	return &Message{Role: RoleUser, Contents: contents}
+}
+
+// NewTextContent creates a new MessageContent with the given text.
+func NewTextContent(text string) *MessageContent {
+	return &MessageContent{ContentType: ContentTypeText, Content: []byte(text)}
+}
+
+// NewImageContent creates a new MessageContent with the given image.
+func NewImageContent(image []byte) *MessageContent {
+	return &MessageContent{ContentType: ContentTypeImage, Content: image}
 }
