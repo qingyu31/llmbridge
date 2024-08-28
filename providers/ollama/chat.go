@@ -42,6 +42,15 @@ func (c Client) ChatStream(ctx context.Context, req *llm.ChatRequest, opts ...ll
 func transformChatRequest(req *llm.ChatRequest) *api.ChatRequest {
 	cr := new(api.ChatRequest)
 	cr.Model = req.Model
+	cr.Tools = make([]api.Tool, 0, len(req.Functions))
+	for _, f := range req.Functions {
+		var tool api.Tool
+		tool.Type = llm.ToolTypeFunction.String()
+		tool.Function.Name = f.Name
+		tool.Function.Description = f.Description
+		_ = json.Unmarshal(f.Parameter, &tool.Function.Parameters)
+		cr.Tools = append(cr.Tools, tool)
+	}
 	cr.Messages = make([]api.Message, 0, len(req.Messages))
 	for _, m := range req.Messages {
 		var msg api.Message

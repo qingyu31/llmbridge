@@ -152,9 +152,9 @@ func (c GPTClient) ChatStream(ctx context.Context, req *llm.ChatRequest, opts ..
 		if resp.Choices[0].FinishReason != nil {
 			result.Reason = string(*resp.Choices[0].FinishReason)
 		}
-		if resp.Choices[0].Message != nil {
+		if resp.Choices[0].Delta != nil {
 			cr := new(llm.ChatResponse)
-			cr.Message = c.transformChatMessage(resp.Choices[0].Message)
+			cr.Message = c.transformChatMessage(resp.Choices[0].Delta)
 			iter.Write(cr)
 		}
 	}
@@ -164,6 +164,20 @@ func (c GPTClient) ChatStream(ctx context.Context, req *llm.ChatRequest, opts ..
 func (c GPTClient) transformChatRequest(req *llm.ChatRequest) *azopenai.ChatCompletionsOptions {
 	co := new(azopenai.ChatCompletionsOptions)
 	co.DeploymentName = &req.Model
+	co.Functions = make([]azopenai.FunctionDefinition, 0, len(req.Functions))
+	for _, f := range req.Functions {
+		co.Functions = append(co.Functions, *c.transformFunctionDefinition(f))
+	}
+	if req.FunctionChoice != nil {
+		choice := *req.FunctionChoice
+		co.FunctionCall = new(azopenai.ChatCompletionsOptionsFunctionCall)
+		if choice == llm.FunctionCallChoiceAuto || choice == llm.FunctionCallChoiceNone {
+			co.FunctionCall.IsFunction = false
+		} else {
+			co.FunctionCall.IsFunction = true
+			co.FunctionCall.Value = toPtr(choice.String())
+		}
+	}
 	co.Messages = make([]azopenai.ChatRequestMessageClassification, 0, len(req.Messages))
 	for _, m := range req.Messages {
 		text := ""
@@ -225,5 +239,12 @@ func (c GPTClient) transformChatMessage(rm *azopenai.ChatResponseMessage) *llm.M
 		lm.FunctionCalls = append(lm.FunctionCalls, lfc)
 	}
 	return lm
+}
 
+func (c GPTClient) transformFunctionDefinition(f *llm.Function) *azopenai.FunctionDefinition {
+	fd := new(azopenai.FunctionDefinition)
+	fd.Name = toPtr(f.Name)
+	fd.Description = toPtr(f.Description)
+	fd.Parameters = f.Parameter
+	return fd
 }

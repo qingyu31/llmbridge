@@ -1,10 +1,7 @@
 package llm
 
-import "encoding/json"
-
 type role string
 type ContentType string
-type ToolType string
 
 const (
 	RoleSystem    role = "system"
@@ -25,14 +22,11 @@ const (
 	ContentTypeVideo ContentType = "video"
 )
 
-const (
-	ToolTypeFunction ToolType = "function"
-)
-
 type ChatRequest struct {
-	Model     string
-	Messages  []*Message
-	Functions []*Function
+	Model          string
+	Messages       []*Message
+	Functions      []*Function
+	FunctionChoice *FunctionCallChoice
 }
 
 type ChatResponse struct {
@@ -55,15 +49,4 @@ type Message struct {
 type MessageContent struct {
 	ContentType
 	Content []byte
-}
-
-type Function struct {
-	Name        string
-	Description string
-	Parameter   json.RawMessage
-}
-
-type FunctionCall struct {
-	Name      string
-	Parameter json.RawMessage
 }
