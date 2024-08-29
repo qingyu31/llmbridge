@@ -15,9 +15,10 @@ func (t ToolType) String() string {
 type Function struct {
 	Name        string
 	Description string
-	Parameter   json.RawMessage
+	Parameter   json.RawMessage // Parameter is the JSON representation of the function's parameter. It may be JSONSCHEMA in most cases.
 }
 
+// CallChoice returns the choice to call this function.
 func (f *Function) CallChoice() FunctionCallChoice {
 	return FunctionCallChoice(f.Name)
 }
@@ -30,7 +31,9 @@ type FunctionCall struct {
 type FunctionCallChoice string
 
 const (
+	// FunctionCallChoiceNone means that the function call is not allowed.
 	FunctionCallChoiceNone FunctionCallChoice = "none"
+	// FunctionCallChoiceAuto means that the function call is automatically chosen.
 	FunctionCallChoiceAuto FunctionCallChoice = "auto"
 )
 
