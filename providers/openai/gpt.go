@@ -164,9 +164,11 @@ func (c GPTClient) ChatStream(ctx context.Context, req *llm.ChatRequest, opts ..
 func (c GPTClient) transformChatRequest(req *llm.ChatRequest) *azopenai.ChatCompletionsOptions {
 	co := new(azopenai.ChatCompletionsOptions)
 	co.DeploymentName = &req.Model
-	co.Functions = make([]azopenai.FunctionDefinition, 0, len(req.Functions))
-	for _, f := range req.Functions {
-		co.Functions = append(co.Functions, *c.transformFunctionDefinition(f))
+	if len(req.Functions) > 0 {
+		co.Functions = make([]azopenai.FunctionDefinition, 0, len(req.Functions))
+		for _, f := range req.Functions {
+			co.Functions = append(co.Functions, *c.transformFunctionDefinition(f))
+		}
 	}
 	if req.FunctionChoice != nil {
 		choice := *req.FunctionChoice

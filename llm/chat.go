@@ -67,6 +67,14 @@ func NewUserMessage(contents ...*MessageContent) *Message {
 	return &Message{Role: RoleUser, Contents: contents}
 }
 
+// NewAssistantMessage creates a new user message with the given contents.
+func NewAssistantMessage(contents ...*MessageContent) *Message {
+	return &Message{
+		Role:     RoleAssistant,
+		Contents: contents,
+	}
+}
+
 // NewTextContent creates a new MessageContent with the given text.
 func NewTextContent(text string) *MessageContent {
 	return &MessageContent{ContentType: ContentTypeText, Content: []byte(text)}
