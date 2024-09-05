@@ -48,7 +48,7 @@ func transformChatRequest(req *llm.ChatRequest) *api.ChatRequest {
 		tool.Type = llm.ToolTypeFunction.String()
 		tool.Function.Name = f.Name
 		tool.Function.Description = f.Description
-		_ = json.Unmarshal(f.Parameter, &tool.Function.Parameters)
+		_ = json.Unmarshal(f.Parameters, &tool.Function.Parameters)
 		cr.Tools = append(cr.Tools, tool)
 	}
 	cr.Messages = make([]api.Message, 0, len(req.Messages))

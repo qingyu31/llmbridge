@@ -27,8 +27,8 @@ const (
 type ChatRequest struct {
 	Model          string
 	Messages       []*Message
-	Functions      []*Function         // Functions is a list of definitions of functions that can be called in the chat.
-	FunctionChoice *FunctionCallChoice // FunctionChoice is defined to specify how to choose the function to call.
+	Functions      []*FunctionDefinition // Functions is a list of definitions of functions that can be called in the chat.
+	FunctionChoice *FunctionCallChoice   // FunctionChoice is defined to specify how to choose the function to call.
 }
 
 type ChatResponse struct {

@@ -22,6 +22,7 @@ func (g gptClientOptions) InitWithDefault() {
 func NewGPTClient(opts ...llm.ClientOption[*gptClientOptions]) (llm.Client, error) {
 	c := new(GPTClient)
 	os := new(gptClientOptions)
+	os.InitWithDefault()
 	for _, o := range opts {
 		o.Apply(os)
 	}
@@ -233,7 +234,7 @@ func (c GPTClient) transformChatMessage(rm *azopenai.ChatResponseMessage) *llm.M
 	if rm.FunctionCall != nil {
 		lfc := new(llm.FunctionCall)
 		lfc.Name = *rm.FunctionCall.Name
-		if rm.FunctionCall.Arguments == nil {
+		if rm.FunctionCall.Arguments != nil {
 			lfc.Parameter = json.RawMessage(*rm.FunctionCall.Arguments)
 		}
 		lm.FunctionCalls = append(lm.FunctionCalls, lfc)
@@ -241,10 +242,10 @@ func (c GPTClient) transformChatMessage(rm *azopenai.ChatResponseMessage) *llm.M
 	return lm
 }
 
-func (c GPTClient) transformFunctionDefinition(f *llm.Function) *azopenai.FunctionDefinition {
+func (c GPTClient) transformFunctionDefinition(f *llm.FunctionDefinition) *azopenai.FunctionDefinition {
 	fd := new(azopenai.FunctionDefinition)
 	fd.Name = toPtr(f.Name)
 	fd.Description = toPtr(f.Description)
-	fd.Parameters = f.Parameter
+	fd.Parameters = f.Parameters
 	return fd
 }

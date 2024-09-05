@@ -12,15 +12,16 @@ func (t ToolType) String() string {
 	return string(t)
 }
 
-type Function struct {
+type FunctionDefinition struct {
 	Name        string
 	Description string
-	Parameter   json.RawMessage // Parameter is the JSON representation of the function's parameter. It may be JSONSCHEMA in most cases.
+	Parameters  json.RawMessage // Parameters is the JSON representation of the function's parameter. It may be JSONSCHEMA in most cases.
 }
 
 // CallChoice returns the choice to call this function.
-func (f *Function) CallChoice() FunctionCallChoice {
-	return FunctionCallChoice(f.Name)
+func (f *FunctionDefinition) CallChoice() *FunctionCallChoice {
+	choice := FunctionCallChoice(f.Name)
+	return &choice
 }
 
 type FunctionCall struct {

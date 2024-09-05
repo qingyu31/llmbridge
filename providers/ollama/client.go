@@ -15,6 +15,7 @@ type Client struct {
 func New(opts ...llm.ClientOption[*options]) (llm.Client, error) {
 	c := new(Client)
 	os := new(options)
+	os.InitWithDefault()
 	for _, o := range opts {
 		o.Apply(os)
 	}
