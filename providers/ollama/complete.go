@@ -7,8 +7,13 @@ import (
 	"strings"
 )
 
-func (c Client) Complete(ctx context.Context, req *llm.CompleteRequest, opts ...llm.CompleteOption) (*llm.Result[llm.CompleteResponse], error) {
+type CompleteOption llm.Option[*api.GenerateRequest]
+
+func (c Client) Complete(ctx context.Context, req *llm.CompleteRequest, opts ...CompleteOption) (*llm.Result[llm.CompleteResponse], error) {
 	gr := transformCompleteRequest(req)
+	for _, opt := range opts {
+		opt.Apply(gr)
+	}
 	result := new(llm.Result[llm.CompleteResponse])
 	sb := new(strings.Builder)
 	er := c.client.Generate(ctx, gr, func(response api.GenerateResponse) error {
@@ -23,8 +28,11 @@ func (c Client) Complete(ctx context.Context, req *llm.CompleteRequest, opts ...
 	return result, er
 }
 
-func (c Client) CompleteStream(ctx context.Context, req *llm.CompleteRequest, opts ...llm.CompleteOption) (*llm.StreamResult[llm.CompleteResponse], error) {
+func (c Client) CompleteStream(ctx context.Context, req *llm.CompleteRequest, opts ...CompleteOption) (*llm.StreamResult[llm.CompleteResponse], error) {
 	gr := transformCompleteRequest(req)
+	for _, opt := range opts {
+		opt.Apply(gr)
+	}
 	result := new(llm.StreamResult[llm.CompleteResponse])
 	iter := llm.NewItemIterator[llm.CompleteResponse]()
 	result.Iterator = iter
@@ -45,4 +53,19 @@ func transformCompleteRequest(req *llm.CompleteRequest) *api.GenerateRequest {
 	gr.Prompt = req.Prompt
 	gr.Model = req.Model
 	return gr
+}
+
+func WithCompleteOptions(key string, value any) CompleteOption {
+	return llm.OptionFunc[*api.GenerateRequest](func(req *api.GenerateRequest) {
+		if req.Options == nil {
+			req.Options = make(map[string]any)
+		}
+		req.Options[key] = value
+	})
+}
+
+func WithCompleteFormat(format string) CompleteOption {
+	return llm.OptionFunc[*api.GenerateRequest](func(req *api.GenerateRequest) {
+		req.Format = format
+	})
 }

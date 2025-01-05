@@ -7,8 +7,11 @@ import (
 	"go.qingyu31.com/llmbridge/llm"
 )
 
-func (c Client) Chat(ctx context.Context, req *llm.ChatRequest, opts ...llm.ChatOption) (*llm.Result[llm.ChatResponse], error) {
+func (c Client) Chat(ctx context.Context, req *llm.ChatRequest, opts ...ChatOption) (*llm.Result[llm.ChatResponse], error) {
 	cr := transformChatRequest(req)
+	for _, opt := range opts {
+		opt.Apply(cr)
+	}
 	cr.Stream = toPtr(false)
 	result := new(llm.Result[llm.ChatResponse])
 	er := c.client.Chat(ctx, cr, func(response api.ChatResponse) error {
@@ -22,8 +25,11 @@ func (c Client) Chat(ctx context.Context, req *llm.ChatRequest, opts ...llm.Chat
 
 }
 
-func (c Client) ChatStream(ctx context.Context, req *llm.ChatRequest, opts ...llm.ChatOption) (*llm.StreamResult[llm.ChatResponse], error) {
+func (c Client) ChatStream(ctx context.Context, req *llm.ChatRequest, opts ...ChatOption) (*llm.StreamResult[llm.ChatResponse], error) {
 	cr := transformChatRequest(req)
+	for _, opt := range opts {
+		opt.Apply(cr)
+	}
 	cr.Stream = toPtr(true)
 	result := new(llm.StreamResult[llm.ChatResponse])
 	iter := llm.NewItemIterator[llm.ChatResponse]()
@@ -100,4 +106,21 @@ func buildChatResponse(response api.ChatResponse) *llm.ChatResponse {
 		res.Message.FunctionCalls = append(res.Message.FunctionCalls, call)
 	}
 	return res
+}
+
+type ChatOption llm.Option[*api.ChatRequest]
+
+func WithChatOptions(key string, value any) ChatOption {
+	return llm.OptionFunc[*api.ChatRequest](func(req *api.ChatRequest) {
+		if req.Options == nil {
+			req.Options = make(map[string]any)
+		}
+		req.Options[key] = value
+	})
+}
+
+func WithFormat(format string) ChatOption {
+	return llm.OptionFunc[*api.ChatRequest](func(req *api.ChatRequest) {
+		req.Format = format
+	})
 }

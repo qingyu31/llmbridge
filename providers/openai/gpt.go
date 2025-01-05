@@ -19,7 +19,7 @@ type gptClientOptions struct {
 func (g gptClientOptions) InitWithDefault() {
 }
 
-func NewGPTClient(opts ...llm.ClientOption[*gptClientOptions]) (llm.Client, error) {
+func NewGPTClient(opts ...llm.ClientOption[*gptClientOptions]) (llm.Client[ChatOption, CompleteOption], error) {
 	c := new(GPTClient)
 	os := new(gptClientOptions)
 	os.InitWithDefault()
@@ -57,10 +57,17 @@ type GPTClient struct {
 	client *azopenai.Client
 }
 
-func (c GPTClient) Complete(ctx context.Context, req *llm.CompleteRequest, opts ...llm.CompleteOption) (*llm.Result[llm.CompleteResponse], error) {
+type CompleteOption llm.Option[*azopenai.CompletionsOptions]
+
+type ChatOption llm.Option[*azopenai.ChatCompletionsOptions]
+
+func (c GPTClient) Complete(ctx context.Context, req *llm.CompleteRequest, opts ...CompleteOption) (*llm.Result[llm.CompleteResponse], error) {
 	var co azopenai.CompletionsOptions
 	co.Prompt = []string{req.Prompt}
 	co.DeploymentName = &req.Model
+	for _, opt := range opts {
+		opt.Apply(&co)
+	}
 	cr, err := c.client.GetCompletions(ctx, co, nil)
 	if err != nil {
 		return nil, err
@@ -78,10 +85,13 @@ func (c GPTClient) Complete(ctx context.Context, req *llm.CompleteRequest, opts 
 	return result, nil
 }
 
-func (c GPTClient) CompleteStream(ctx context.Context, req *llm.CompleteRequest, opts ...llm.CompleteOption) (*llm.StreamResult[llm.CompleteResponse], error) {
+func (c GPTClient) CompleteStream(ctx context.Context, req *llm.CompleteRequest, opts ...CompleteOption) (*llm.StreamResult[llm.CompleteResponse], error) {
 	var co azopenai.CompletionsOptions
 	co.Prompt = []string{req.Prompt}
 	co.DeploymentName = &req.Model
+	for _, opt := range opts {
+		opt.Apply(&co)
+	}
 	cr, er := c.client.GetCompletionsStream(ctx, co, nil)
 	if er != nil {
 		return nil, er
@@ -110,8 +120,11 @@ func (c GPTClient) CompleteStream(ctx context.Context, req *llm.CompleteRequest,
 	return result, nil
 }
 
-func (c GPTClient) Chat(ctx context.Context, req *llm.ChatRequest, opts ...llm.ChatOption) (*llm.Result[llm.ChatResponse], error) {
+func (c GPTClient) Chat(ctx context.Context, req *llm.ChatRequest, opts ...ChatOption) (*llm.Result[llm.ChatResponse], error) {
 	co := c.transformChatRequest(req)
+	for _, opt := range opts {
+		opt.Apply(&co)
+	}
 	cr, err := c.client.GetChatCompletions(ctx, *co, nil)
 	if err != nil {
 		return nil, err
@@ -130,8 +143,11 @@ func (c GPTClient) Chat(ctx context.Context, req *llm.ChatRequest, opts ...llm.C
 	return result, nil
 }
 
-func (c GPTClient) ChatStream(ctx context.Context, req *llm.ChatRequest, opts ...llm.ChatOption) (*llm.StreamResult[llm.ChatResponse], error) {
+func (c GPTClient) ChatStream(ctx context.Context, req *llm.ChatRequest, opts ...ChatOption) (*llm.StreamResult[llm.ChatResponse], error) {
 	co := c.transformChatRequest(req)
+	for _, opt := range opts {
+		opt.Apply(&co)
+	}
 	cs, er := c.client.GetChatCompletionsStream(ctx, *co, nil)
 	if er != nil {
 		return nil, er

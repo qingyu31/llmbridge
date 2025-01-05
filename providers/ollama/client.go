@@ -12,7 +12,7 @@ type Client struct {
 	client *api.Client
 }
 
-func New(opts ...llm.ClientOption[*options]) (llm.Client, error) {
+func New(opts ...llm.ClientOption[*options]) (llm.Client[ChatOption, CompleteOption], error) {
 	c := new(Client)
 	os := new(options)
 	os.InitWithDefault()

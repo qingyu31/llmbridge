@@ -1,5 +1,14 @@
 package llm
 
+import "context"
+
+type ChatClient[T any] interface {
+	// Chat sends a chat request to the LLM model.
+	Chat(ctx context.Context, req *ChatRequest, opts ...T) (*Result[ChatResponse], error)
+	// ChatStream sends a chat request to the LLM model and returns a stream result.
+	ChatStream(ctx context.Context, req *ChatRequest, opts ...T) (*StreamResult[ChatResponse], error)
+}
+
 type role string
 
 // ContentType represents the type of content in message.
@@ -33,13 +42,6 @@ type ChatRequest struct {
 
 type ChatResponse struct {
 	Message *Message
-}
-
-type ChatOptions interface {
-}
-
-type ChatOption interface {
-	Apply(options ChatOptions)
 }
 
 type Message struct {
