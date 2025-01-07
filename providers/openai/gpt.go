@@ -123,7 +123,7 @@ func (c GPTClient) CompleteStream(ctx context.Context, req *llm.CompleteRequest,
 func (c GPTClient) Chat(ctx context.Context, req *llm.ChatRequest, opts ...ChatOption) (*llm.Result[llm.ChatResponse], error) {
 	co := c.transformChatRequest(req)
 	for _, opt := range opts {
-		opt.Apply(&co)
+		opt.Apply(co)
 	}
 	cr, err := c.client.GetChatCompletions(ctx, *co, nil)
 	if err != nil {
@@ -146,7 +146,7 @@ func (c GPTClient) Chat(ctx context.Context, req *llm.ChatRequest, opts ...ChatO
 func (c GPTClient) ChatStream(ctx context.Context, req *llm.ChatRequest, opts ...ChatOption) (*llm.StreamResult[llm.ChatResponse], error) {
 	co := c.transformChatRequest(req)
 	for _, opt := range opts {
-		opt.Apply(&co)
+		opt.Apply(co)
 	}
 	cs, er := c.client.GetChatCompletionsStream(ctx, *co, nil)
 	if er != nil {
